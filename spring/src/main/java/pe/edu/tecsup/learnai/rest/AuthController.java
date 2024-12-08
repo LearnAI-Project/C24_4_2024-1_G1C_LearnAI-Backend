@@ -9,6 +9,7 @@ import pe.edu.tecsup.learnai.entity.User;
 import pe.edu.tecsup.learnai.exception.DuplicatedUserInfoException;
 import pe.edu.tecsup.learnai.exception.InvalidCodeException;
 import pe.edu.tecsup.learnai.rest.request.*;
+import pe.edu.tecsup.learnai.security.JWT.JwtUtils;
 import pe.edu.tecsup.learnai.services.email.EmailService;
 import pe.edu.tecsup.learnai.services.UserService;
 
@@ -21,14 +22,16 @@ public class AuthController{
 
     private final UserService userService;
     private final EmailService emailService;
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    public AuthController(UserService userService, EmailService emailService) {
+    public AuthController(UserService userService, EmailService emailService, JwtUtils jwtUtils) {
         this.userService = userService;
         this.emailService = emailService;
+        this.jwtUtils = jwtUtils;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userService.validEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
         if (userOptional.isPresent()) {
@@ -36,14 +39,15 @@ public class AuthController{
             if (!user.isVerified()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }
-            return ResponseEntity.ok(new AuthResponse(user.getId(), user.getUsername(), user.getEmail()));
+            String token = jwtUtils.generateToken(user.getUsername());
+            return ResponseEntity.ok(new AuthResponse(user.getId(), user.getUsername(), user.getEmail(), token));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
-    public AuthResponse register(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<String> register(@Valid @RequestBody SignUpRequest signUpRequest) {
         // Verificar si el username o email ya están en uso
         if (userService.hasUserWithUsername(signUpRequest.getUsername())) {
             throw new DuplicatedUserInfoException(
@@ -56,18 +60,25 @@ public class AuthController{
             );
         }
 
+        // Crear un nuevo usuario
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
-        user.setPassword(signUpRequest.getPassword());
+        user.setPassword(signUpRequest.getPassword()); // Contraseña cifrada
         user.setEmail(signUpRequest.getEmail());
         user.setVerificationCode(generateVerificationCode());
         user.setVerified(false);
 
+        // Guardar usuario en la base de datos
         userService.saveUser(user);
+
+        // Enviar email de bienvenida
         emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
 
-        return new AuthResponse(user.getId(), user.getUsername(), user.getEmail());
+        // Retornar respuesta con una redirección al login
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User registered successfully! Please log in at /auth/login");
     }
+
 
     private int generateVerificationCode() {
         SecureRandom random = new SecureRandom();

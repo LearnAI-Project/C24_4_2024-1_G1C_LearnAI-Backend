@@ -24,10 +24,11 @@ public class UserController {
     public UserDTO getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            String email = authentication.getName();
-            User user = userService.findByEmail(email)
+            String email = authentication.getName();  // El email se extrae de la autenticación
+            System.out.println("Authenticated email: " + email);  // Log para verificar el email autenticado
+            User user = userService.findByUsername(email)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            return new UserDTO(user.getId(),user.getUsername(), user.getEmail());
+            return new UserDTO(user.getId(), user.getUsername(), user.getEmail());
         } else {
             throw new RuntimeException("User not authenticated");
         }
