@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to LearnAI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        p {
+            line-height: 1.6;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h1>Welcome, {{username}}!</h1>
+    <p>Thank you for joining LearnAI! We're thrilled to have you in our community. If you have any questions, feel free to reach out to our support team.</p>
+    <p>Happy learning!<br>The LearnAI Team</p>
+    <p>{{verificationCode}}</p>
+    <p>If you did not sign up for this account, please ignore this email.</p>
+    <div class="footer">
+        <p>&copy; 2024 LearnAI. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
