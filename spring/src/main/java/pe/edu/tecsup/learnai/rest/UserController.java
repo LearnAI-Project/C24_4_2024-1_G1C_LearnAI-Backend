@@ -26,7 +26,7 @@ public class UserController {
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();  // El email se extrae de la autenticación
             System.out.println("Authenticated email: " + email);  // Log para verificar el email autenticado
-            User user = userService.findByUsername(email)
+            User user = userService.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             return new UserDTO(user.getId(), user.getUsername(), user.getEmail());
         } else {

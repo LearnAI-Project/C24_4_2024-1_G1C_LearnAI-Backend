@@ -39,7 +39,7 @@ public class AuthController{
             if (!user.isVerified()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }
-            String token = jwtUtils.generateToken(user.getUsername());
+            String token = jwtUtils.generateToken(user.getEmail());
             return ResponseEntity.ok(new AuthResponse(user.getId(), user.getUsername(), user.getEmail(), token));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

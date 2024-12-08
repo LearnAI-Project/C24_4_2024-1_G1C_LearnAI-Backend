@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 new UsernameNotFoundException("User not found with username or email: " + usernameOrEmail));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
+                .username(user.getEmail())
                 .password(user.getPassword())
                 .roles("USER") // Puedes ajustar los roles según tu aplicación
                 .disabled(!user.isVerified())

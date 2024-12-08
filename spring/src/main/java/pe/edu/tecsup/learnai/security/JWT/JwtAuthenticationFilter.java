@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username;
 
         try {
-            username = jwtUtils.extractUsername(jwt);
+            username = jwtUtils.extractEmail(jwt);
         } catch (JwtException e) {
             // Log opcional
             filterChain.doFilter(request, response);
