@@ -38,10 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7).trim();
+        String v_code;
         String username;
 
         try {
-            username = jwtUtils.extractEmail(jwt);
+            username = jwtUtils.extractUsername(jwt);
+            v_code = jwtUtils.extractVerificationCode(jwt);
+
         } catch (JwtException e) {
             // Log opcional
             filterChain.doFilter(request, response);

@@ -23,26 +23,39 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String username, String v_code) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
+        claims.put("v_code", v_code);
+
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(email)
+                .setClaims(claims) // Aquí se ponen los claims que incluyen el username y v_code
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        String email = Jwts.parserBuilder()
+    public String extractVerificationCode(String token) {
+        String v_code = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-        System.out.println("Extracted username: " + email);  // Log para depurar el nombre extraído
-        return email;
+        System.out.println("Extracted verfication code: " + v_code);  // Log para depurar el nombre extraído
+        return v_code;
+    }
+
+    public String extractUsername(String token) {
+        String username = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        System.out.println("Extracted username: " + username);  // Log para depurar el nombre extraído
+        return username;
     }
 
     public boolean validateToken(String token) {

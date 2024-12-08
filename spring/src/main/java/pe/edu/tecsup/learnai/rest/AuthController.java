@@ -39,7 +39,7 @@ public class AuthController{
             if (!user.isVerified()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             }
-            String token = jwtUtils.generateToken(user.getEmail());
+            String token = jwtUtils.generateToken(user.getEmail(), user.getVerificationCode().toString());
             return ResponseEntity.ok(new AuthResponse(user.getId(), user.getUsername(), user.getEmail(), token));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -76,7 +76,7 @@ public class AuthController{
 
         // Retornar respuesta con una redirección al login
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("User registered successfully! Please log in at /auth/login");
+                .body("User registered successfully!");
     }
 
 
