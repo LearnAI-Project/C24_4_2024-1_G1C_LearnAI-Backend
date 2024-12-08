@@ -21,7 +21,7 @@ public interface UserService {
 
     User saveUser(User user);
 
-    Optional<User> validEmailAndPassword(String email, String password);
+    Optional<User> validUsernameAndPassword(String username, String password);
 
     Optional<User> findByEmail(String email);
 

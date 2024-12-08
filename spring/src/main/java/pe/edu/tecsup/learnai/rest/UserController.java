@@ -24,9 +24,9 @@ public class UserController {
     public UserDTO getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            String email = authentication.getName();  // El email se extrae de la autenticación
-            System.out.println("Authenticated email: " + email);  // Log para verificar el email autenticado
-            User user = userService.findByEmail(email)
+            String username = authentication.getName();  // El email se extrae de la autenticación
+            System.out.println("Authenticated username: " + username);  // Log para verificar el email autenticado
+            User user = userService.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             return new UserDTO(user.getId(), user.getUsername(), user.getEmail());
         } else {
@@ -34,11 +34,4 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        User user = userService.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail());
-        return ResponseEntity.ok(userDTO);
-    }
 }

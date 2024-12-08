@@ -49,7 +49,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                 // Si el usuario existe, actualiza los datos
                 User existingUser = existingUserOpt.get();
                 existingUser.setUsername(name);
-                existingUser.setVerified(isVerified); // Actualiza si el correo está verificado
+                existingUser.setVerified(true); // Actualiza si el correo está verificado
                 userService.saveUser(existingUser);
             } else {
                 // Si el usuario no existe, crea uno nuevo
@@ -58,13 +58,13 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                 newUser.setEmail(email);
                 newUser.setPassword(generateRandomPassword());  // Genera una contraseña aleatoria segura
                 newUser.setVerificationCode(null);  // Puede ser utilizado para una verificación adicional
-                newUser.setVerified(isVerified);
+                newUser.setVerified(true);
                 userService.saveUser(newUser);
             }
         }
 
         // Redirige a la URL del frontend de Vite
-        String redirectUrl = "http://localhost:5173"; // URL de Vite (cambia si es necesario)
+        String redirectUrl = "http://localhost:3000"; // URL de Vite (cambia si es necesario)
         response.sendRedirect(redirectUrl); // Redirige al cliente a Vite
 
         // No es necesario llamar a setAlwaysUseDefaultTargetUrl(true) ni super.onAuthenticationSuccess aquí, ya que hemos manejado la redirección manualmente.

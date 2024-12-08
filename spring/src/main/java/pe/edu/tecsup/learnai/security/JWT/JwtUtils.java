@@ -25,11 +25,11 @@ public class JwtUtils {
 
     public String generateToken(String username, String v_code) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", username);
         claims.put("v_code", v_code);
 
         return Jwts.builder()
                 .setClaims(claims) // Aquí se ponen los claims que incluyen el username y v_code
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -37,15 +37,16 @@ public class JwtUtils {
     }
 
     public String extractVerificationCode(String token) {
-        String v_code = Jwts.parserBuilder()
+        String v_code = (String) Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject();
-        System.out.println("Extracted verfication code: " + v_code);  // Log para depurar el nombre extraído
+                .get("v_code");  // Acceder correctamente al claim "v_code"
+        System.out.println("Extracted verification code: " + v_code);
         return v_code;
     }
+
 
     public String extractUsername(String token) {
         String username = Jwts.parserBuilder()

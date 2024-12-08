@@ -7,13 +7,13 @@ import lombok.Data;
 public class LoginRequest {
 
     @NotBlank
-    private String email;
+    private String username;
 
     @NotBlank
     private String password;
 
-    public LoginRequest(String mail, String password123) {
-        this.email = mail;
+    public LoginRequest(String username, String password123) {
+        this.username = username;
         this.password = password123;
     }
 }
