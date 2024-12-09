@@ -8,4 +8,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN cp /.env.spring /app/spring/.env || cp /etc/secrets/.env.spring /app/spring/.env || echo "No .env file found"
+WORKDIR /app/spring
+
+RUN mvn clean install
+
+CMD ["mvn", "spring-boot:run"]
