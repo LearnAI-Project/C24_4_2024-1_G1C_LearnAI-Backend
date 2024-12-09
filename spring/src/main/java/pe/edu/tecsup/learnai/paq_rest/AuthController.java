@@ -67,6 +67,7 @@ public class AuthController{
         user.setEmail(signUpRequest.getEmail());
         user.setVerificationCode(generateVerificationCode());
         user.setVerified(false);
+        user.setAttempt(3);
 
         // Guardar usuario en la base de datos
         userService.saveUser(user);

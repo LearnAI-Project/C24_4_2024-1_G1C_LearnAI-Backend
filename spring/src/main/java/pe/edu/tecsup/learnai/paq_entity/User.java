@@ -26,13 +26,18 @@ public class User {
     private Integer verificationCode;
     @Column(name = "is_verified")
     private boolean isVerified;
+    @Column(name = "attempt")
+    private Integer attempt;
+    @OneToMany(mappedBy = "user")
+    private List<Theme> themes;
 
-    public User(String username, String email, String password, Integer verificationCode, boolean isVerified) {
+    public User(String username, String email, String password, Integer verificationCode, boolean isVerified, Integer attempt) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.verificationCode = verificationCode;
         this.isVerified = isVerified;
+        this.attempt = attempt;
     }
 
 }

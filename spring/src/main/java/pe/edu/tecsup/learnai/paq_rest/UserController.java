@@ -45,6 +45,15 @@ public class UserController {
             User user = userService.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
+            // Verificar si el usuario tiene intentos restantes
+            if (user.getAttempt() <= 0) {
+                throw new RuntimeException("No attempts remaining. Please contact support.");
+            }
+
+            // Decrementar los intentos del usuario en uno
+            user.setAttempt(user.getAttempt() - 1);
+            userService.saveUser(user);  // Asegúrate de guardar el usuario después de modificar los intentos
+
             // Crear y guardar el tema
             Theme theme = new Theme(themeRequest.getName(), user);
             themeService.saveTheme(theme);
@@ -54,6 +63,7 @@ public class UserController {
             throw new RuntimeException("User not authenticated");
         }
     }
+
 
     @PostMapping("/export/{themeId}")
     public String exportTheme(@PathVariable Integer themeId) {
