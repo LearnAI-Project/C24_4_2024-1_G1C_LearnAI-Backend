@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cp .env.example .env
+
+while IFS= read -r line || [ -n "$line" ]; do
+  var_name=$(echo "$line" | cut -d '=' -f 1)
+  echo "Setting $var_name"
+  var_value=$(printenv "$var_name")
+  if [ -n "$var_value" ]; then
+    sed -i "s|^${var_name}=.*|${var_name}=${var_value}|g" .env
+  else
+    echo "Warning: Environment variable $var_name is not set."
+  fi
+done < .env.example

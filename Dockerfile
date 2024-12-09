@@ -8,9 +8,9 @@ WORKDIR /app
 
 COPY . /app
 
-RUN cp /etc/secrets/.env.spring /app/spring/.env
-
 WORKDIR /app/spring
+
+RUN chmod +x env_setup && sh env_setup
 
 RUN mvn clean install
 
