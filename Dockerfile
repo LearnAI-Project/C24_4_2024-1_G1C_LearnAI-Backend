@@ -10,6 +10,8 @@ COPY . /app
 
 WORKDIR /app/spring
 
+RUN cp /etc/secrets/.env .env
+
 RUN mvn clean install
 
 CMD ["mvn", "spring-boot:run"]
