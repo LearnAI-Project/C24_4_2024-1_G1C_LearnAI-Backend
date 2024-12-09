@@ -1,9 +1,6 @@
 spring:
   application:
     name: LearnAi
-  jpa:
-    hibernate:
-      ddl-auto: create
   datasource:
     url: ${DB_URL}
   mail:
