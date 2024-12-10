@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "dashboard",
     "ai",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -71,10 +72,6 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS")
-
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
 ROOT_URLCONF = "core.urls"
 
