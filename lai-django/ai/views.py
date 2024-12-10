@@ -1,10 +1,12 @@
 from django.conf import settings
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 import openai
+import requests
 
 # Create your views here.
 
@@ -219,6 +221,165 @@ class GetSummary(APIView):
             summary = response.choices[0].message.content
             return Response({"summary": summary}, status=status.HTTP_200_OK)
 
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class GetPresentation(APIView):
+    """
+    API endpoint to generate a presentation based on theme.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            language = request.data.get("language", "Spanish")
+            theme = request.data.get("theme")
+
+            if not theme:
+                return Response(
+                    {"error": "theme is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            response_title = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": f"You are a copywriter. {system_response(language)}",
+                    },
+                    {
+                        "role": "system",
+                        "content": f"You just have to answer the title",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Give me a professional title for a {theme} slide.",
+                    },
+                ],
+            )
+
+            title = response_title.choices[0].message.content
+
+            response_roadmap = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": f"You are an {theme} assistant. {system_response(language)}",
+                    },
+                    {
+                        "role": "system",
+                        "content": f"You respond a list in the following format:\n\n1. name of the n°1 topic theme\n2. name of the n°2 topic\n...\n5. name of the topic°5",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Give me a roadmap of 5 items for a {theme} presentation",
+                    },
+                ],
+            )
+
+            roadmap = response_roadmap.choices[0].message.content
+
+            topics = []
+
+            lines = roadmap.split("\n")
+
+            for line in lines:
+                stripped_line = line.strip()
+                if stripped_line.startswith(tuple(map(str, range(1, 10)))):
+                    _, content = stripped_line.split(". ", 1)
+                    topics.append(content)
+
+            subtopics_list = []
+
+            for i in topics:
+                new_message = {
+                    "role": "user",
+                    "content": f"Give me a syllabus of 5 subtopics for the following topic: {i}",
+                }
+                messages = [
+                    {
+                        "role": "system",
+                        "content": f"You are an {theme} assistant. {system_response(language)}",
+                    },
+                    {
+                        "role": "system",
+                        "content": f"You respond a list about {theme} in the following format:\n\n1. name of the topic 1\n2. name of the topic 2\n...\n5. name of the topic 5",
+                    },
+                ]
+                messages.append(new_message)
+
+                response = client.chat.completions.create(
+                    model=MODEL_NAME, messages=messages
+                )
+
+                syllabus = response.choices[0].message.content
+
+                subtopics = []
+
+                lines = syllabus.split("\n")
+                for line in lines:
+                    stripped_line = line.strip()
+                    if stripped_line.startswith(tuple(map(str, range(1, 10)))):
+                        _, content = stripped_line.split(". ", 1)
+                        subtopics.append(content)
+
+                subtopics_list.append(subtopics)
+
+                assistant_response = {
+                    "role": "assistant",
+                    "content": syllabus,
+                }
+
+                messages.append(assistant_response)
+
+            markdown_content = f"""
+<!-- title: marp -->
+<!-- theme: {theme} -->
+<!-- class: invert -->
+<!-- paginate: true -->
+
+<style>
+    header {{
+        color: hsl(232, 10%, 60%);
+        text-align: right;
+        font-weight: 700;
+    }}
+    footer {{
+        color: hsl(232, 10%, 50%);
+        text-align: left;
+        font-weight: 500;
+    }}
+</style>
+
+# {title}
+
+---
+"""
+
+            for idx, topic in enumerate(topics, 1):
+                markdown_content += f"## {idx}. {topic}\n\n---\n"
+                for sub_idx, subtopic in enumerate(subtopics_list[idx - 1], 1):
+                    markdown_content += f"## {idx}.{sub_idx} {subtopic}\n\n"            
+            
+            node_api_url = settings.HOST_EXPRESS + "/convert"
+            response = requests.post(node_api_url, data=markdown_content, headers={"Content-Type": "text/plain"})
+
+            if response.status_code == 200:
+                pdf_url = response.json().get("url")
+                return Response({"url": pdf_url}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Failed to convert markdown to PDF"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
         except Exception as e:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR

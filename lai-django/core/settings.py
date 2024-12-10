@@ -31,6 +31,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # OpenAI API key
 OPENAI_API_KEY = env("OPENAI_API_KEY")
 
+# EXPRESS HOST
+HOST_EXPRESS = env("HOST_EXPRESS")
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
@@ -68,9 +71,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
+
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS")
 
 ROOT_URLCONF = "core.urls"
 
